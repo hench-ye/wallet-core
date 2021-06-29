@@ -7,6 +7,7 @@ Pod::Spec.new do |s|
   s.authors      = { 'Hench Ye' => 'hench.ye@topnetork.org' }
   s.module_name  = 'WalletCore'
   s.ios.deployment_target = '12.0'
+  s.osx.deployment_target = '10.12'
   s.swift_version = '5.1'
   s.source = {
     http: 'https://github.com/hench-ye/wallet-core/releases/download/2.6.11/TrustWalletCore-2.6.11.tar.xz'
