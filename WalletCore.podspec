@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.libraries = 'c++'
 
   s.source = {
-    :git => 'https://github.com:hench-ye/wallet-core.git', :branch => "hench1", :tag => s.version.to_s
+    :git => 'git@github.com:hench-ye/wallet-core.git', :branch => "hench1", :tag => s.version.to_s
   }
 
   s.default_subspec = 'Core'
