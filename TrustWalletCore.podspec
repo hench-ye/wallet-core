@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.12'
   s.swift_version = '5.1'
   s.source = {
-    http: 'https://github.com/hench-ye/wallet-core/releases/download/2.6.11/TrustWalletCore-2.6.11.tar.xz'
+    :http => 'https://github.com/hench-ye/wallet-core/releases/download/2.6.11/TrustWalletCore-2.6.11.tar.xz'
   }
   s.default_subspec = 'Core'
   s.subspec 'Types' do |ss|
