@@ -33,12 +33,12 @@ Proto::SigningOutput Signer::sign(const Proto::SigningInput &input) noexcept {
 void Signer::sign(const PrivateKey& privateKey, Transaction& transaction) noexcept {
     Data encoded = transaction.encode();
     auto hashData = Hash::sha256(encoded.data(), encoded.size());
-    auto hashSignature = privateKey.sign(hashData, TWCurveSECP256k1);
-    auto publicKeyData = privateKey.getPublicKey(TWPublicKeyTypeSECP256k1Extended).bytes;
+    Data hashSignature = privateKey.sign(hashData, TWCurveSECP256k1);
+//    auto publicKeyData = privateKey.getPublicKey(TWPublicKeyTypeSECP256k1Extended).bytes;
 
-    // Top signature = pubKeyBytes + signatureBytes
-    Data result(publicKeyData.begin(), publicKeyData.end());
-    result.insert(result.end(), hashSignature.begin(), hashSignature.end());
-
-    transaction.signature = result;
+//    Data result(publicKeyData.begin(), publicKeyData.end());
+//    result.insert(result.end(), hashSignature.begin(), hashSignature.end());
+    hashSignature.pop_back();
+    hashSignature.insert(hashSignature.begin(), 0x0);
+    transaction.signature = hashSignature;
 }

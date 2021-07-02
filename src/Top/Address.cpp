@@ -14,16 +14,15 @@ bool Address::isValid(const std::string& string) {
     if (string.size() != Address::size*2 + TOP_PREFIX.size() || string.substr(0, TOP_PREFIX.size()) != TOP_PREFIX) {
         return false;
     }
-    const auto data = parse_hex(std::string("0x") + string.substr(TOP_PREFIX.size()));
-    return Address::isValid(data);    
+    return true;
 }
 
 Address::Address(const std::string& string) {
     // TODO: Finalize implementation
-    const auto data = parse_hex(std::string("0x") + string.substr(TOP_PREFIX.size()));
-    if (!isValid(data)) {
+    if (!isValid(string)) {
         throw std::invalid_argument("Invalid address data");
     }
+    const auto data = parse_hex(std::string("0x") + string.substr(TOP_PREFIX.size()));
     std::copy(data.begin(), data.end(), bytes.begin());    
 }
 
