@@ -6,6 +6,7 @@
 
 #include "Signer.h"
 #include "Address.h"
+#include "../HexCoding.h"
 #include "../PublicKey.h"
 
 using namespace TW;
@@ -14,8 +15,8 @@ using namespace TW::Top;
 Proto::SigningOutput Signer::sign(const Proto::SigningInput &input) noexcept {
     auto key = PrivateKey(Data(input.private_key().begin(), input.private_key().end()));
     auto transaction = Transaction(
-        /* from: */ Address(input.from()),
-        /* to: */ Address(input.to()),
+        /* from: */ static_cast<Data>(data(input.from())),
+        /* to: */ static_cast<Data>(data(input.to())),
         /* amount: */ static_cast<uint64_t>(input.amount()),
         /* tx_deposit: */ static_cast<uint32_t>(input.tx_deposit()),
         /* last_tx_nonce: */ static_cast<uint64_t>(input.last_tx_nonce()),
@@ -32,13 +33,15 @@ Proto::SigningOutput Signer::sign(const Proto::SigningInput &input) noexcept {
 }
 void Signer::sign(const PrivateKey& privateKey, Transaction& transaction) noexcept {
     Data encoded = transaction.encode();
-    auto hashData = Hash::sha256(encoded.data(), encoded.size());
+    Data hashData = Hash::sha256(encoded.data(), encoded.size());
+    // std::cout << "hash: " << hex(hashData)<<std::endl;
     Data hashSignature = privateKey.sign(hashData, TWCurveSECP256k1);
+    // std::cout << "signature: " << hex(hashSignature)<<std::endl;
 //    auto publicKeyData = privateKey.getPublicKey(TWPublicKeyTypeSECP256k1Extended).bytes;
 
 //    Data result(publicKeyData.begin(), publicKeyData.end());
 //    result.insert(result.end(), hashSignature.begin(), hashSignature.end());
+    hashSignature.insert(hashSignature.begin(), hashSignature.back());
     hashSignature.pop_back();
-    hashSignature.insert(hashSignature.begin(), 0x0);
     transaction.signature = hashSignature;
 }

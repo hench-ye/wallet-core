@@ -12,12 +12,12 @@ using namespace TW::Top;
 
 Data Transaction::encode() const noexcept {
     auto encoded = Data();
-    append(encoded, Ethereum::RLP::encode(from.bytes));
-    append(encoded, Ethereum::RLP::encode(to.bytes));
+    append(encoded, Ethereum::RLP::encode(from));
+    append(encoded, Ethereum::RLP::encode(to));
     append(encoded, Ethereum::RLP::encode(amount));
     append(encoded, Ethereum::RLP::encode(tx_deposit));
     append(encoded, Ethereum::RLP::encode(last_tx_nonce));
-    append(encoded, Ethereum::RLP::encode(last_tx_hash));
+    append(encoded, Ethereum::RLP::encode(m_last_tx_hash));
     append(encoded, Ethereum::RLP::encode(token));
     append(encoded, Ethereum::RLP::encode(note));
     if (!signature.empty()) {
