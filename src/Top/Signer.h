@@ -23,7 +23,12 @@ public:
     static Proto::SigningOutput sign(const Proto::SigningInput& input) noexcept;
 
     /// Signs the given transaction.
-    static void sign(const PrivateKey& privateKey, Transaction& transaction) noexcept;    
+    static void sign(const PrivateKey& privateKey, Transaction& transaction) noexcept;
+
+    /// Signs H5 data
+    // Data sign(const PrivateKey& privateKey, Data& transaction) noexcept;
+    /// Signs a json Proto::SigningInput with private key
+    static std::string signJSON(const std::string& json, const Data& key) noexcept;
 };
 
 } // namespace TW::Top

@@ -13,14 +13,17 @@ option java_package = "wallet.core.jni.proto";
 message SigningInput {
     string from = 1;
     string to = 2;
-    uint64 amount = 3;
-    uint32 tx_deposit = 4;
-    uint64 last_tx_nonce = 5;
-    string last_tx_hash = 6;
-    string token = 7;
-    string note = 8;
+    uint32 tx_type = 3;
+    uint64 amount = 4;
+    uint32 extra = 5;
+    uint32 tx_deposit = 6;
+    uint32 source_action_type = 7;
+    uint32 target_action_type = 8;
+    uint64 last_tx_nonce = 9;
+    string last_tx_hash = 10;
+    string note = 11;
     // Private key.
-    bytes private_key = 9;
+    bytes private_key = 12;
 }
 
 // Transaction signing output.

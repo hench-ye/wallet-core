@@ -20,6 +20,8 @@ public:
     virtual void sign(TWCoinType coin, const Data& dataIn, Data& dataOut) const;
     // normalizeAddress(): implement this if needed, e.g. Ethereum address is EIP55 checksummed
     // plan(): implement this if the blockchain is UTXO based
+    virtual std::string signJSON(TWCoinType coin, const std::string& json, const Data& key) const;
+    virtual bool supportsJSONSigning() const { return true; }
 };
 
 } // namespace TW::Top

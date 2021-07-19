@@ -37,7 +37,7 @@ class Address {
 
 inline bool operator==(const Address& lhs, const Address& rhs) {
     // TODO: Complete equality operator
-    return true;
+    return lhs.bytes == rhs.bytes;
 }
 
 } // namespace TW::Top
