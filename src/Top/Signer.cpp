@@ -9,6 +9,8 @@
 #include "../Ethereum/RLP.h"
 #include "../HexCoding.h"
 #include "../PublicKey.h"
+#include "cJSON.h"
+#include "Serial.h"
 
 using namespace TW;
 using namespace TW::Top;
@@ -49,34 +51,86 @@ void Signer::sign(const PrivateKey& privateKey, Transaction& transaction) noexce
     hashSignature.pop_back();
     transaction.signature = hashSignature;
 }
-/*
-Data Signer::sign(const PrivateKey& privateKey, Data& transaction) noexcept {
-    Data hashData = Hash::sha256(transaction.data(), transaction.size());
-    Data hashSignature = privateKey.sign(hashData, TWCurveSECP256k1);
 
-    hashSignature.insert(hashSignature.begin(), hashSignature.back());
-    hashSignature.pop_back();
-
-    auto encoded = Data();
-    append(encoded, Ethereum::RLP::encode(transaction));
-    append(encoded, Ethereum::RLP::encode(hashSignature));
-
-    return Ethereum::RLP::encodeList(encoded);    
-}
-*/
 std::string Signer::signJSON(const std::string& json, const Data& key) noexcept {
-    PrivateKey privateKey(key);
+    cJSON* pRoot = cJSON_CreateObject();
+    if (pRoot == NULL)
+        return "";
+    pRoot = cJSON_Parse(json.c_str());
+    cJSON* pBody = cJSON_CreateObject();
+    pBody = cJSON_Parse(cJSON_GetObjectItem(pRoot, "body")->valuestring);
+    cJSON_Delete(pRoot);
+    if (pBody == NULL)
+        return "";
+    cJSON* pParams = cJSON_GetObjectItem(pBody, "params");
+    if (pParams == NULL) {
+        cJSON_Delete(pBody);
+        return "";
+    }
 
-    Data hashData = Hash::sha256((uint8_t*)json.data(), json.size());
+    std::string sdata;
+    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pParams, "tx_type")->valueint);
+    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pParams, "tx_len")->valueint);
+    serial_data(sdata, (uint32_t)cJSON_GetObjectItem(pParams, "tx_structure_version")->valueint);
+    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pParams, "to_ledger_id")->valueint);
+    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pParams, "from_ledger_id")->valueint);
+    serial_data(sdata, (uint32_t)cJSON_GetObjectItem(pParams, "tx_deposit")->valueint);
+    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pParams, "tx_expire_duration")->valueint);
+    serial_data(sdata, (uint64_t)cJSON_GetObjectItem(pParams, "send_timestamp")->valueint);
+    serial_data(sdata, (uint32_t)cJSON_GetObjectItem(pParams, "tx_random_nonce")->valueint);
+    serial_data(sdata, (uint32_t)cJSON_GetObjectItem(pParams, "premium_price")->valueint);
+    serial_data(sdata, (uint64_t)cJSON_GetObjectItem(pParams, "last_tx_nonce")->valueint);
+    std::string strtemp(cJSON_GetObjectItem(pParams, "last_tx_hash")->valuestring);
+    serial_data(sdata, (uint64_t)hex_to_uint64(strtemp));
+    serial_data(sdata, cJSON_GetObjectItem(pParams, "challenge_proof")->valuestring);
+    serial_data(sdata, cJSON_GetObjectItem(pParams, "ext")->valuestring);
+    serial_data(sdata, cJSON_GetObjectItem(pParams, "note")->valuestring);
+
+    cJSON* pSender = cJSON_GetObjectItem(pParams, "sender_action");
+    serial_data(sdata, (uint32_t)cJSON_GetObjectItem(pSender, "action_hash")->valueint);
+    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pSender, "action_type")->valueint);
+    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pSender, "action_size")->valueint);
+    serial_data(sdata, cJSON_GetObjectItem(pSender, "tx_sender_account_addr")->valuestring);
+    serial_data(sdata, cJSON_GetObjectItem(pSender, "action_name")->valuestring);
+    serial_data_hex(sdata, cJSON_GetObjectItem(pSender, "action_param")->valuestring);
+    serial_data(sdata, cJSON_GetObjectItem(pSender, "action_ext")->valuestring);
+    serial_data(sdata, cJSON_GetObjectItem(pSender, "action_authorization")->valuestring);
+
+    cJSON* pReceiver = cJSON_GetObjectItem(pParams, "receiver_action");
+    serial_data(sdata, (uint32_t)cJSON_GetObjectItem(pReceiver, "action_hash")->valueint);
+    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pReceiver, "action_type")->valueint);
+    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pReceiver, "action_size")->valueint);
+    serial_data(sdata, cJSON_GetObjectItem(pReceiver, "tx_receiver_account_addr")->valuestring);
+    serial_data(sdata, cJSON_GetObjectItem(pReceiver, "action_name")->valuestring);
+    serial_data_hex(sdata, cJSON_GetObjectItem(pReceiver, "action_param")->valuestring);
+    serial_data(sdata, cJSON_GetObjectItem(pReceiver, "action_ext")->valuestring);
+    serial_data(sdata, cJSON_GetObjectItem(pReceiver, "action_authorization")->valuestring);
+
+    //std::cout << "data: " << hex(sdata) << std::endl;
+    //std::cout << "key: " << hex(key) << std::endl;
+    std::string tx_hash = cJSON_GetObjectItem(pParams, "tx_hash")->valuestring;
+    cJSON_Delete(pBody);
+
+
+    PrivateKey privateKey(key);
+    Data hashData = Hash::sha256((uint8_t*)sdata.data(), sdata.size());
     Data hashSignature = privateKey.sign(hashData, TWCurveSECP256k1);
+    //std::cout << "hashData: " << hex(std::string(hashData.begin(), hashData.end())) << std::endl;
+
+    if (tx_hash.size() > 2 && tx_hash.substr(2) != hex(hashData)) {
+//        std::cout << "hash check error." << std::endl;
+//        return "";
+    }
 
     hashSignature.insert(hashSignature.begin(), hashSignature.back());
     hashSignature.pop_back();
+    //std::cout << "hashSignature: " << hex(std::string(hashSignature.begin(), hashSignature.end())) << std::endl;
 
     auto encoded = Data();
-    append(encoded, Ethereum::RLP::encode(json));
+    append(encoded, Ethereum::RLP::encode(sdata));
+    append(encoded, Ethereum::RLP::encode(hashData));
     append(encoded, Ethereum::RLP::encode(hashSignature));
 
-    Data data = Ethereum::RLP::encodeList(encoded);
-    return hex(data.begin(), data.end());
+    Data output = Ethereum::RLP::encodeList(encoded);
+    return hex(output.begin(), output.end());
 }
