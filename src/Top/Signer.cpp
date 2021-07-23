@@ -42,7 +42,7 @@ Proto::SigningOutput Signer::sign(const Proto::SigningInput &input) noexcept {
     return output;
 }
 void Signer::sign(const PrivateKey& privateKey, Transaction& transaction) noexcept {
-    Data encoded = transaction.encode();
+    Data encoded = transaction.serial_transaction();
     Data hashData = Hash::sha256(encoded.data(), encoded.size());
 //    std::cout << "hash: " << hex(hashData)<<std::endl;
     Data hashSignature = privateKey.sign(hashData, TWCurveSECP256k1);
@@ -54,6 +54,7 @@ void Signer::sign(const PrivateKey& privateKey, Transaction& transaction) noexce
     hashSignature.insert(hashSignature.begin(), hashSignature.back());
     hashSignature.pop_back();
     transaction.signature = hashSignature;
+    transaction.hash = hashData;     
 }
 
 std::string Signer::signJSON(const std::string& json, const Data& key) noexcept {
