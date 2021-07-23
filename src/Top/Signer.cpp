@@ -16,24 +16,28 @@ using namespace TW;
 using namespace TW::Top;
 
 Proto::SigningOutput Signer::sign(const Proto::SigningInput &input) noexcept {
-    auto key = PrivateKey(Data(input.private_key().begin(), input.private_key().end()));
+    auto privateKey = PrivateKey(Data(input.private_key().begin(), input.private_key().end()));
     auto transaction = Transaction(
-        /* from: */ static_cast<Data>(data(input.from())),
-        /* to: */ static_cast<Data>(data(input.to())),
-        /* tx_type: */ static_cast<uint16_t>(input.tx_type()),
-        /* amount: */ static_cast<uint64_t>(input.amount()),
-        /* extra: */ static_cast<uint32_t>(input.extra()),
-        /* tx_deposit: */ static_cast<uint32_t>(input.tx_deposit()),
-        /* source_action_type: */ static_cast<uint16_t>(input.source_action_type()),
-        /* target_action_type: */ static_cast<uint16_t>(input.target_action_type()),
-        /* last_tx_nonce: */ static_cast<uint64_t>(input.last_tx_nonce()),
-        /* last_tx_hash: */ static_cast<Data>(data(input.last_tx_hash())),
-        /* note: */ static_cast<Data>(data(input.note())));
-    Signer::sign(key, transaction);
+        static_cast<Data>(data(input.from())), static_cast<Data>(data(input.to())),
+        static_cast<uint16_t>(input.tx_type()), static_cast<uint64_t>(input.amount()),
+        static_cast<uint32_t>(input.extra()), static_cast<uint32_t>(input.tx_deposit()),
+        static_cast<uint16_t>(input.source_action_type()),
+        static_cast<uint16_t>(input.target_action_type()),
+        static_cast<uint64_t>(input.last_tx_nonce()), static_cast<Data>(data(input.last_tx_hash())),
+        static_cast<Data>(data(input.note())));
+    //Signer::sign(key, transaction);
+    Data sdata = transaction.serial_transaction();
+    Data hashData = Hash::sha256(sdata.data(), sdata.size());
+    Data hashSignature = privateKey.sign(hashData, TWCurveSECP256k1);
+    hashSignature.insert(hashSignature.begin(), hashSignature.back());
+    hashSignature.pop_back();
+    transaction.signature = hashSignature;    
+    transaction.hash = hashData;    
 
     auto output = Proto::SigningOutput();
-    auto encoded = transaction.encode();
-    output.set_encoded(encoded.data(), encoded.size());
+    sdata = transaction.encode();
+    output.set_encoded(sdata.data(), sdata.size());
+    //output.set_hash(hashData, hashData.size());
     output.set_signature(transaction.signature.data(), transaction.signature.size());
     return output;
 }

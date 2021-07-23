@@ -29,6 +29,12 @@ inline void serial_data_hex(std::string& data, const char* input) {
     data += std::string((char*)&len, sizeof(len));
     data += std::string(input2.begin(), input2.end());
 }
+inline void serial_data_hex(std::string& data, const std::string input) {
+    Data input2 = parse_hex(input);
+    uint32_t len = (uint32_t)input2.size();
+    data += std::string((char*)&len, sizeof(len));
+    data += std::string(input2.begin(), input2.end());
+}
 inline void serial_data(std::string& data, const uint32_t input) {
     data += std::string((char*)&input, sizeof(input));
 }
@@ -52,6 +58,11 @@ inline void serial_data(std::string& data, const int8_t input) {
 }
 inline void serial_data(std::string& data, const int64_t input) {
     data += std::string((char*)&input, sizeof(input));
+}
+inline void serial_data(std::string& data, const Data input) {
+    uint32_t len = (uint32_t)input.size();
+    data += std::string((char*)&len, sizeof(len));
+    data += std::string(input.begin(), input.end());
 }
 inline int hex_to_dec(char c) {
     if ('0' <= c && c <= '9') {

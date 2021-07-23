@@ -9,6 +9,23 @@
 #include "../Data.h"
 
 namespace TW::Top {
+enum enum_xtransaction_type {
+    xtransaction_type_create_user_account        = 0,    // create user account
+
+    xtransaction_type_run_contract               = 3,    // run contract
+    xtransaction_type_transfer                   = 4,    // transfer asset
+
+    xtransaction_type_vote                       = 20,
+    xtransaction_type_abolish_vote               = 21,
+
+    xtransaction_type_pledge_token_tgas          = 22,   // pledge token for tgas
+    xtransaction_type_redeem_token_tgas          = 23,   // redeem token
+    xtransaction_type_pledge_token_vote          = 27,   // pledge token for disk
+    xtransaction_type_redeem_token_vote          = 28,   // redeem token
+
+    xtransaction_type_max
+};
+  
 class Transaction {
   public:
     std::vector<uint8_t> from;
@@ -24,6 +41,7 @@ class Transaction {
     std::vector<uint8_t> note;
     /// Transaction signature.
     std::vector<uint8_t> signature;
+    std::vector<uint8_t> hash;
 
     Transaction(const Data& from, const Data& to, uint16_t tx_type, uint64_t amount, uint32_t extra, 
                 uint32_t tx_deposit, uint16_t source_action_type, uint16_t target_action_type,
@@ -47,6 +65,7 @@ class Transaction {
   public:
     /// Encodes the transaction.
     Data encode() const noexcept;
+    Data serial_transaction() const noexcept;
 };
 
 } // namespace TW::Top
