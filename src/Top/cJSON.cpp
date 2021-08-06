@@ -30,6 +30,8 @@
 #include <float.h>
 #include <limits.h>
 #include <ctype.h>
+#include <string>
+#include <iostream>  
 #include "cJSON.h"
 
 static const char *ep;
@@ -95,18 +97,19 @@ void cJSON_Delete(cJSON *c)
 /* Parse the input text to generate a number, and populate the result into item. */
 static const char *parse_number(cJSON *item,const char *num)
 {
-	double n=0,sign=1,scale=0;int subscale=0,signsubscale=1;
+	uint32_t n=0,index=0;
+	int sign = 1;
 
-	if (*num=='-') sign=-1,num++;	/* Has sign? */
-	if (*num=='0') num++;			/* is zero */
-	if (*num>='1' && *num<='9')	do	n=(n*10.0)+(*num++ -'0');	while (*num>='0' && *num<='9');	/* Number? */
-	if (*num=='.' && num[1]>='0' && num[1]<='9') {num++;		do	n=(n*10.0)+(*num++ -'0'),scale--; while (*num>='0' && *num<='9');}	/* Fractional part? */
-	if (*num=='e' || *num=='E')		/* Exponent? */
-	{	num++;if (*num=='+') num++;	else if (*num=='-') signsubscale=-1,num++;		/* With sign? */
-		while (*num>='0' && *num<='9') subscale=(subscale*10)+(*num++ - '0');	/* Number? */
+	if (*num=='-') sign=-1,num++;	
+	if (*num>='0' && *num<='9') {
+		do {	index++; 
+		} while (num[index]>='0' && num[index]<='9');
+		//std::cout <<"parse:"<< std::string(num,index) <<std::endl;
+		n = std::stoull(std::string(num,index));
+		//std::cout << "get:" << n <<std::endl;
+		num += index;
 	}
-
-	n=sign*n*pow(10.0,(scale+subscale*signsubscale));	/* number = +/- number.fraction * 10^+/- exponent */
+	n = sign * n;
 	
 	item->valuedouble=n;
 	item->valueint=(int)n;
