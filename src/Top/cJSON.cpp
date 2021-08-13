@@ -104,9 +104,7 @@ static const char *parse_number(cJSON *item,const char *num)
 	if (*num>='0' && *num<='9') {
 		do {	index++; 
 		} while (num[index]>='0' && num[index]<='9');
-		//std::cout <<"parse:"<< std::string(num,index) <<std::endl;
 		n = std::stoull(std::string(num,index));
-		//std::cout << "get:" << n <<std::endl;
 		num += index;
 	}
 	n = sign * n;

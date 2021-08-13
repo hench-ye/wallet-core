@@ -39,13 +39,16 @@ class TestTopAddress {
     @Test
     fun aeternityTransactionSigning() {
         val signingInput = Top.SigningInput.newBuilder()
-            .setFrom("T0000066ab344963eaa071f9636faac26b0d1a39900325")
-            .setTo("T0000066ab344963eaa071f9636faac26b0d1a39900325")
-            .setAmount(1)
-            .setTxDeposit(2)
-            .setLastTxNonce(3)
+            .setFrom("T8000066ab344963eaa071f9636faac26b0d1a39900325")
+            .setTo("T8000066ab344963eaa071f9636faac26b0d1a39900325")
+            .setTxType(4)
+            .setAmount(0x010203040506)
+            .setExtra(0x030405)
+            .setTxDeposit(5)
+            .setSourceActionType(6)
+            .setTargetActionType(7)
+            .setLastTxNonce(0x0102030405060708)
             .setLastTxHash("12345678")
-            .setToken("hello world")
             .setNote("top unit test")
             .setPrivateKey("2ff271ab38849388c49e24fbc52d357384c24ed929df4f0c7b81afca7c775b62".toHexBytesInByteString())
             .build()
@@ -53,11 +56,11 @@ class TestTopAddress {
         val output = AnySigner.sign(signingInput, TOP, SigningOutput.parser())
 
         assertEquals(
-            "0xf8d49466ab344963eaa071f9636faac26b0d1a399003259466ab344963eaa071f9636faac26b0d1a399003250102038831323334353637388b68656c6c6f20776f726c648d746f7020756e69742074657374b8820488227084554fae2b4b270cb56c9d8ee2b6bb1ee06863945ecce5bff9f8a197aa4546799dbe85decd6f3a43f52a2b06f77efd53af8e8530463d27c1b5945608bf216da6f9276fb23e718ef5c85bdcc8b63d5f88540b1b68978837e35334beb60d1de3efbe6948bb10636f9f014553b8b0ca5697a66b0c69c9dc0ce893289fce5100",
+            "0x00062a200d70a0928de7f8ae4e9a39dde11f26115eaf462a021bd948304cd473b263ba78e7d10e55c98589c9f9ecf9d2033b976d56befba827a84e2c21a80bb085",
             output.encoded.toByteArray().toHex()
         )
         assertEquals(
-            "0x0488227084554fae2b4b270cb56c9d8ee2b6bb1ee06863945ecce5bff9f8a197aa4546799dbe85decd6f3a43f52a2b06f77efd53af8e8530463d27c1b5945608bf216da6f9276fb23e718ef5c85bdcc8b63d5f88540b1b68978837e35334beb60d1de3efbe6948bb10636f9f014553b8b0ca5697a66b0c69c9dc0ce893289fce5100",
+            "0xf8d0ae54383030303036366162333434393633656161303731663936333666616163323662306431613339393030333235ae543830303030363661623334343936336561613037316639363336666161633236623064316133393930303332350486010203040506830304050506078801020304050607088831323334353637388d746f7020756e69742074657374b84100062a200d70a0928de7f8ae4e9a39dde11f26115eaf462a021bd948304cd473b263ba78e7d10e55c98589c9f9ecf9d2033b976d56befba827a84e2c21a80bb085",
             output.signature.toByteArray().toHex()
         )
     }

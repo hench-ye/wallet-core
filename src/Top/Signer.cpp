@@ -75,7 +75,7 @@ std::string Signer::signJSON(const std::string& json, const Data& key) noexcept 
 
     std::string sdata;
     serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pParams, "tx_type")->valueint);
-    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pParams, "tx_len")->valueint);
+    serial_data(sdata, (uint16_t)0);
     serial_data(sdata, (uint32_t)cJSON_GetObjectItem(pParams, "tx_structure_version")->valueint);
     serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pParams, "to_ledger_id")->valueint);
     serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pParams, "from_ledger_id")->valueint);
@@ -94,7 +94,7 @@ std::string Signer::signJSON(const std::string& json, const Data& key) noexcept 
     cJSON* pSender = cJSON_GetObjectItem(pParams, "sender_action");
     serial_data(sdata, (uint32_t)cJSON_GetObjectItem(pSender, "action_hash")->valueint);
     serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pSender, "action_type")->valueint);
-    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pSender, "action_size")->valueint);
+    serial_data(sdata, (uint16_t)0);
     serial_data(sdata, cJSON_GetObjectItem(pSender, "tx_sender_account_addr")->valuestring);
     serial_data(sdata, cJSON_GetObjectItem(pSender, "action_name")->valuestring);
     serial_data_hex(sdata, cJSON_GetObjectItem(pSender, "action_param")->valuestring);
@@ -104,7 +104,7 @@ std::string Signer::signJSON(const std::string& json, const Data& key) noexcept 
     cJSON* pReceiver = cJSON_GetObjectItem(pParams, "receiver_action");
     serial_data(sdata, (uint32_t)cJSON_GetObjectItem(pReceiver, "action_hash")->valueint);
     serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pReceiver, "action_type")->valueint);
-    serial_data(sdata, (uint16_t)cJSON_GetObjectItem(pReceiver, "action_size")->valueint);
+    serial_data(sdata, (uint16_t)0);
     serial_data(sdata, cJSON_GetObjectItem(pReceiver, "tx_receiver_account_addr")->valuestring);
     serial_data(sdata, cJSON_GetObjectItem(pReceiver, "action_name")->valuestring);
     serial_data_hex(sdata, cJSON_GetObjectItem(pReceiver, "action_param")->valuestring);
