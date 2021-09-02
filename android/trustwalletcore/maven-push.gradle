@@ -1,7 +1,7 @@
 apply plugin: 'maven-publish'
 
 version project.property('version')
-group 'com.trustwallet'
+group 'com.topwallet'
 
 task sourcesJar(type: Jar) {
     classifier = 'sources'
@@ -41,10 +41,11 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/trustwallet/wallet-core")
+            url = uri("https://maven.pkg.github.com/hench-ye/wallet-core")
+            //url = uri("git@github.com:hench-ye/wallet-core.git")
             credentials {
-                username = System.getenv("WC_GITHUB_USER")
-                password = System.getenv("WC_GITHUB_TOKEN")
+                username = "hench.ye@topnetwork.org"
+                password = "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"
             }
         }
     }
